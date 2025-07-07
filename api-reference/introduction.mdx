@@ -1,33 +1,93 @@
 ---
 title: 'Introduction'
-description: 'Example section for showcasing API endpoints'
+description: 'Gentility AI API for instant development environments and AI agent tools'
 ---
 
-<Note>
-  If you're not looking to build API reference documentation, you can delete
-  this section by removing the api-reference folder.
-</Note>
+## Welcome to the Gentility AI API
 
-## Welcome
-
-There are two ways to build API documentation: [OpenAPI](https://mintlify.com/docs/api-playground/openapi/setup) and [MDX components](https://mintlify.com/docs/api-playground/mdx/configuration). For the starter kit, we are using the following OpenAPI specification.
+Gentility AI provides instant, secure development environments for AI agents through a simple HTTP API. Our platform allows you to spin up isolated virtual machines, execute commands, access files, and provide your AI agents with powerful development tools.
 
 <Card
-  title="Plant Store Endpoints"
-  icon="leaf"
-  href="https://github.com/mintlify/starter/blob/main/api-reference/openapi.json"
+  title="Gentility AI API Specification"
+  icon="terminal"
+  href="/api-reference/openapi.json"
 >
-  View the OpenAPI specification file
+  View the complete OpenAPI specification
 </Card>
+
+## Key Features
+
+- **Instant VM Provisioning**: Spin up secure development environments in milliseconds
+- **Multi-tenant Isolation**: Organization-scoped access with room-based VM separation  
+- **Command Execution**: Execute shell commands with real-time output and file change tracking
+- **File Operations**: Read and write files within VM instances
+- **AI Tool Integration**: Dynamic tool schema generation for AI agents
+- **Profile Templates**: Configurable VM environments with custom packages and settings
 
 ## Authentication
 
-All API endpoints are authenticated using Bearer tokens and picked up from the specification file.
+All API endpoints require authentication using Bearer tokens with your API key:
 
-```json
-"security": [
-  {
-    "bearerAuth": []
-  }
-]
+```bash
+curl -H "Authorization: Bearer rk_live_your_api_key_here" \
+  https://api.gentility.ai/api/profile/{profile_id}/room/{room_id}
 ```
+
+### API Key Format
+
+API keys follow the pattern: `rk_{environment}_{32_hex_characters}`
+
+- **Production**: `rk_live_...`
+- **Development**: `rk_test_...`
+
+<Warning>
+Keep your API keys secure and never expose them in client-side code or public repositories.
+</Warning>
+
+## Core Concepts
+
+### Profiles
+VM configuration templates that define:
+- Memory allocation and filesystem size
+- Base Docker image and kernel configuration
+- Installed packages and development tools
+- Organization-specific settings
+
+### Rooms
+Logical isolation boundaries within profiles that allow multiple concurrent VM instances for different sessions or users.
+
+### Instances
+Active virtual machines provisioned from profiles, progressing through states:
+`active` → `network_allocated` → `ftap_created` → `image_generated` → `vm_started` → `vm_booted` → `ready`
+
+### Multi-tenant Architecture
+All operations are scoped to your organization, ensuring complete isolation between different customers and teams.
+
+## Quick Start
+
+1. **Create a VM Instance**
+   ```bash
+   POST /api/profile/{profile_id}/room/{room_id}
+   ```
+
+2. **Execute Commands**
+   ```bash
+   POST /api/profile/{profile_id}/room/{room_id}/command
+   ```
+
+3. **Read Files**
+   ```bash
+   GET /api/profile/{profile_id}/room/{room_id}/file/{path}
+   ```
+
+4. **Get AI Tool Schema**
+   ```bash
+   GET /api/profile/{profile_id}/room/{room_id}/tools
+   ```
+
+## Support
+
+For questions, issues, or feature requests:
+- **Email**: support@gentility.ai
+- **Website**: https://gentility.ai
+- **Documentation**: https://docs.gentility.ai

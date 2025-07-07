@@ -1,16 +1,22 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "OpenAPI Plant Store",
-    "description": "A sample API that uses a plant store as an example to demonstrate features in the OpenAPI specification",
+    "title": "Gentility AI API",
+    "description": "API for instant development environments and AI agent tools. Spin up isolated virtual machines, execute commands, access files, and more.",
     "license": {
-      "name": "MIT"
+      "name": "Proprietary"
     },
-    "version": "1.0.0"
+    "version": "1.0.0",
+    "contact": {
+      "name": "Gentility AI Support",
+      "url": "https://gentility.ai",
+      "email": "support@gentility.ai"
+    }
   },
   "servers": [
     {
-      "url": "http://sandbox.mintlify.com"
+      "url": "https://api.gentility.ai",
+      "description": "Production server"
     }
   ],
   "security": [
@@ -19,72 +25,61 @@
     }
   ],
   "paths": {
-    "/plants": {
-      "get": {
-        "description": "Returns all plants from the system that the user has access to",
+    "/api/profile/{profile_id}/room/{room_id}": {
+      "post": {
+        "summary": "Create or retrieve VM instance",
+        "description": "Creates or retrieves a VM instance for a specific profile and room. Handles instance provisioning and warm pool claiming.",
+        "tags": ["VM Management"],
         "parameters": [
           {
-            "name": "limit",
-            "in": "query",
-            "description": "The maximum number of results to return",
+            "name": "profile_id",
+            "in": "path",
+            "required": true,
+            "description": "UUID of the profile (VM configuration template)",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "room_id",
+            "in": "path",
+            "required": true,
+            "description": "Room identifier for instance isolation",
+            "schema": {
+              "type": "string"
             }
           }
         ],
-        "responses": {
-          "200": {
-            "description": "Plant response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Plant"
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "host_id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "Optional specific host ID to provision on"
                   }
                 }
               }
             }
-          },
-          "400": {
-            "description": "Unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
           }
-        }
-      },
-      "post": {
-        "description": "Creates a new plant in the store",
-        "requestBody": {
-          "description": "Plant to add to the store",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NewPlant"
-              }
-            }
-          },
-          "required": true
         },
         "responses": {
           "200": {
-            "description": "plant response",
+            "description": "Instance created or retrieved successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Plant"
+                  "$ref": "#/components/schemas/Instance"
                 }
               }
             }
           },
-          "400": {
-            "description": "unexpected error",
+          "503": {
+            "description": "Service unavailable - no hosts available or instance not ready",
             "content": {
               "application/json": {
                 "schema": {
@@ -96,28 +91,63 @@
         }
       }
     },
-    "/plants/{id}": {
-      "delete": {
-        "description": "Deletes a single plant based on the ID supplied",
+    "/api/profile/{profile_id}/room/{room_id}/command": {
+      "post": {
+        "summary": "Execute command in VM instance",
+        "description": "Executes shell commands on VM instances and returns output with file change tracking.",
+        "tags": ["Command Execution"],
         "parameters": [
           {
-            "name": "id",
+            "name": "profile_id",
             "in": "path",
-            "description": "ID of plant to delete",
             "required": true,
+            "description": "UUID of the profile",
             "schema": {
-              "type": "integer",
-              "format": "int64"
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "room_id",
+            "in": "path",
+            "required": true,
+            "description": "Room identifier",
+            "schema": {
+              "type": "string"
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["command"],
+                "properties": {
+                  "command": {
+                    "type": "string",
+                    "description": "Shell command to execute",
+                    "example": "python -c 'print(\"Hello World\")'"
+                  }
+                }
+              }
+            }
+          }
+        },
         "responses": {
-          "204": {
-            "description": "Plant deleted",
-            "content": {}
+          "200": {
+            "description": "Command executed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            }
           },
-          "400": {
-            "description": "unexpected error",
+          "404": {
+            "description": "Instance not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -128,81 +158,434 @@
           }
         }
       }
-    }
-  },
-  "webhooks": {
-    "/plant/webhook": {
-      "post": {
-        "description": "Information about a new plant added to the store",
-        "requestBody": {
-          "description": "Plant added to the store",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NewPlant"
+    },
+    "/api/profile/{profile_id}/room/{room_id}/file/{path}": {
+      "get": {
+        "summary": "Read file from VM instance",
+        "description": "Reads files from VM instances and returns content as JSON.",
+        "tags": ["File Operations"],
+        "parameters": [
+          {
+            "name": "profile_id",
+            "in": "path",
+            "required": true,
+            "description": "UUID of the profile",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "room_id",
+            "in": "path",
+            "required": true,
+            "description": "Room identifier",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "path",
+            "in": "path",
+            "required": true,
+            "description": "File path within the VM (wildcard path parameter)",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "File content retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FileContent"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "File or instance not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
               }
             }
           }
-        },
+        }
+      }
+    },
+    "/api/profile/{profile_id}/room/{room_id}/tools": {
+      "get": {
+        "summary": "Get AI tool schema",
+        "description": "Returns AI tool schema definitions for the VM environment, including available tools and environment capabilities.",
+        "tags": ["AI Tools"],
+        "parameters": [
+          {
+            "name": "profile_id",
+            "in": "path",
+            "required": true,
+            "description": "UUID of the profile",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "room_id",
+            "in": "path",
+            "required": true,
+            "description": "Room identifier",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
-            "description": "Return a 200 status to indicate that the data was received successfully"
+            "description": "Tool schema retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ToolSchema"
+                }
+              }
+            }
           }
         }
+      }
+    },
+    "/api/profile/{profile_id}/schema": {
+      "get": {
+        "summary": "Get profile configuration",
+        "description": "Returns profile configuration details including memory, filesystem size, kernel, Docker configuration, and package information.",
+        "tags": ["Profile Management"],
+        "parameters": [
+          {
+            "name": "profile_id",
+            "in": "path",
+            "required": true,
+            "description": "UUID of the profile",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Profile schema retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfileSchema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vm/{instance_id}/file/{path}": {
+      "get": {
+        "summary": "Direct VM file access (unauthenticated)",
+        "description": "Direct file access for AI agents. No authentication required. Serves files with appropriate MIME types.",
+        "tags": ["File Operations"],
+        "parameters": [
+          {
+            "name": "instance_id",
+            "in": "path",
+            "required": true,
+            "description": "UUID of the VM instance",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "path",
+            "in": "path",
+            "required": true,
+            "description": "File path within the VM (wildcard path parameter)",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "File served successfully",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "File not found"
+          }
+        },
+        "security": []
       }
     }
   },
   "components": {
     "schemas": {
-      "Plant": {
-        "required": [
-          "name"
-        ],
+      "Instance": {
         "type": "object",
+        "required": ["instance_id", "profile_id", "room_id", "status"],
         "properties": {
-          "name": {
-            "description": "The name of the plant",
-            "type": "string"
+          "instance_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Unique identifier for the VM instance"
           },
-          "tag": {
-            "description": "Tag to specify the type",
-            "type": "string"
-          }
-        }
-      },
-      "NewPlant": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Plant"
+          "profile_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Profile UUID used for this instance"
           },
-          {
-            "required": [
-              "id"
-            ],
+          "room_id": {
+            "type": "string",
+            "description": "Room identifier for this instance"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["active", "network_allocated", "ftap_created", "image_generated", "vm_started", "vm_booted", "ready"],
+            "description": "Current instance state"
+          },
+          "host": {
             "type": "object",
             "properties": {
               "id": {
-                "description": "Identification number of the plant",
-                "type": "integer",
-                "format": "int64"
+                "type": "string",
+                "format": "uuid"
+              },
+              "name": {
+                "type": "string"
+              }
+            }
+          },
+          "profile": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "name": {
+                "type": "string"
               }
             }
           }
-        ]
+        }
       },
-      "Error": {
-        "required": [
-          "error",
-          "message"
-        ],
+      "CommandResult": {
+        "type": "object",
+        "required": ["instance_id", "command", "result", "status"],
+        "properties": {
+          "instance_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Instance where command was executed"
+          },
+          "command": {
+            "type": "string",
+            "description": "The command that was executed"
+          },
+          "result": {
+            "type": "object",
+            "required": ["output", "exit_code"],
+            "properties": {
+              "output": {
+                "type": "string",
+                "description": "Command stdout"
+              },
+              "exit_code": {
+                "type": "integer",
+                "description": "Command exit code"
+              },
+              "files_changed": {
+                "type": "array",
+                "description": "Files that were created or modified during command execution",
+                "items": {
+                  "$ref": "#/components/schemas/FileChange"
+                }
+              }
+            }
+          },
+          "status": {
+            "type": "string",
+            "enum": ["success", "error"],
+            "description": "Command execution status"
+          }
+        }
+      },
+      "FileChange": {
+        "type": "object",
+        "required": ["path", "status"],
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "File path relative to VM home directory"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["created", "modified", "deleted"],
+            "description": "Type of change"
+          },
+          "size": {
+            "type": "integer",
+            "description": "File size in bytes"
+          },
+          "mime_type": {
+            "type": "string",
+            "description": "MIME type of the file"
+          },
+          "public_url": {
+            "type": "string",
+            "description": "Public URL to access the file"
+          }
+        }
+      },
+      "FileContent": {
+        "type": "object",
+        "required": ["file_path", "content", "instance_id"],
+        "properties": {
+          "file_path": {
+            "type": "string",
+            "description": "Path to the file within the VM"
+          },
+          "content": {
+            "type": "string",
+            "description": "File content as string"
+          },
+          "instance_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Instance containing the file"
+          }
+        }
+      },
+      "ToolSchema": {
+        "type": "object",
+        "required": ["profile_id", "room_id", "instance_id", "instance_status", "tools"],
+        "properties": {
+          "profile_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "room_id": {
+            "type": "string"
+          },
+          "instance_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "instance_status": {
+            "type": "string",
+            "description": "Current instance status"
+          },
+          "tools": {
+            "type": "array",
+            "description": "Available AI tools for this environment",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "description": "Tool name"
+                },
+                "description": {
+                  "type": "string",
+                  "description": "Tool description"
+                },
+                "parameters": {
+                  "type": "object",
+                  "description": "JSON Schema for tool parameters"
+                }
+              }
+            }
+          }
+        }
+      },
+      "ProfileSchema": {
         "type": "object",
         "properties": {
-          "error": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "memory_mb": {
             "type": "integer",
-            "format": "int32"
+            "description": "RAM allocation in megabytes"
+          },
+          "filesystem_size_mb": {
+            "type": "integer",
+            "description": "Filesystem size in megabytes"
+          },
+          "kernel": {
+            "type": "object",
+            "description": "Kernel configuration"
+          },
+          "docker": {
+            "type": "object",
+            "description": "Docker configuration and base image"
+          },
+          "packages": {
+            "type": "array",
+            "description": "Installed packages",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "version": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string"
+                },
+                "language": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "organization": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "slug": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "required": ["error", "message"],
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "Error code or type"
           },
           "message": {
-            "type": "string"
+            "type": "string",
+            "description": "Human-readable error message"
           }
         }
       }
@@ -210,8 +593,31 @@
     "securitySchemes": {
       "bearerAuth": {
         "type": "http",
-        "scheme": "bearer"
+        "scheme": "bearer",
+        "description": "API key authentication using Bearer token format: 'Bearer rk_live_<key>'"
       }
     }
-  }
+  },
+  "tags": [
+    {
+      "name": "VM Management",
+      "description": "Operations for creating and managing VM instances"
+    },
+    {
+      "name": "Command Execution", 
+      "description": "Execute shell commands within VM instances"
+    },
+    {
+      "name": "File Operations",
+      "description": "Read and access files within VM instances"
+    },
+    {
+      "name": "AI Tools",
+      "description": "Tool schemas and capabilities for AI agents"
+    },
+    {
+      "name": "Profile Management",
+      "description": "VM configuration templates and settings"
+    }
+  ]
 }

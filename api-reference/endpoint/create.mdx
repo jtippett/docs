@@ -1,4 +1,70 @@
 ---
-title: 'Create Plant'
-openapi: 'POST /plants'
+title: 'Create VM Instance'
+openapi: 'POST /api/profile/{profile_id}/room/{room_id}'
 ---
+
+Creates or retrieves a VM instance for a specific profile and room. This endpoint handles instance provisioning from warm pools or creates new instances as needed.
+
+## Use Cases
+
+- **AI Agent Sessions**: Create isolated environments for different AI agent conversations
+- **Development Environments**: Spin up temporary development environments with specific tool configurations
+- **Testing Environments**: Create reproducible testing environments for code execution
+
+## Instance Lifecycle
+
+When you create an instance, it progresses through several states:
+
+1. `active` - Instance record created
+2. `network_allocated` - IP address assigned  
+3. `ftap_created` - Network interface configured
+4. `image_generated` - VM filesystem prepared
+5. `vm_started` - Firecracker VM launched
+6. `vm_booted` - VM fully operational
+7. `ready` - Instance ready for commands
+
+## Response Examples
+
+### Successful Instance Creation
+
+```json
+{
+  "instance_id": "550e8400-e29b-41d4-a716-446655440000",
+  "profile_id": "6ba7b810-9dad-11d1-80b4-00c04fd430c8", 
+  "room_id": "ai-session-123",
+  "status": "ready",
+  "host": {
+    "id": "550e8400-e29b-41d4-a716-446655440001",
+    "name": "host-us-east-1a"
+  },
+  "profile": {
+    "id": "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
+    "name": "python-data-science"
+  }
+}
+```
+
+### Service Unavailable (No Hosts Available)
+
+```json
+{
+  "error": "service_unavailable",
+  "message": "No available hosts for instance provisioning"
+}
+```
+
+### Service Unavailable (Instance Not Ready)
+
+```json
+{
+  "error": "instance_not_ready", 
+  "message": "Instance is still provisioning, current status: vm_started"
+}
+```
+
+## Best Practices
+
+- **Room Naming**: Use descriptive room IDs that help identify the session or user context
+- **Error Handling**: Always check the response status and handle 503 errors by retrying after a short delay
+- **Instance Reuse**: The same profile/room combination will return the same instance if it already exists
+- **Cleanup**: Instances are automatically cleaned up after periods of inactivity

@@ -1,4 +1,243 @@
 ---
-title: 'New Plant'
-openapi: 'WEBHOOK /plant/webhook'
+title: 'Get Profile Schema'
+openapi: 'GET /api/profile/{profile_id}/schema'
 ---
+
+Returns detailed configuration information about a profile, including memory allocation, filesystem size, kernel configuration, Docker settings, and installed packages. This endpoint helps you understand the capabilities and specifications of a VM profile before creating instances.
+
+## Use Cases
+
+- **Environment Planning**: Understand what's available in a profile before creating instances
+- **Capacity Planning**: Check memory and storage allocations
+- **Package Discovery**: See what development tools and packages are pre-installed
+- **Configuration Validation**: Verify profile settings match your requirements
+
+## Response Structure
+
+```json
+{
+  "id": "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
+  "name": "python-data-science", 
+  "memory_mb": 2048,
+  "filesystem_size_mb": 8192,
+  "kernel": {
+    "version": "5.10.0",
+    "architecture": "x86_64",
+    "config": "firecracker-optimized"
+  },
+  "docker": {
+    "base_image": "python:3.11-slim",
+    "dockerfile_commands": [
+      "RUN apt-get update && apt-get install -y git curl",
+      "RUN pip install pandas matplotlib scikit-learn jupyter",
+      "WORKDIR /workspace"
+    ]
+  },
+  "packages": [
+    {
+      "name": "python",
+      "version": "3.11.7",
+      "type": "runtime",
+      "language": "python"
+    },
+    {
+      "name": "pandas",
+      "version": "2.1.4", 
+      "type": "library",
+      "language": "python"
+    },
+    {
+      "name": "matplotlib",
+      "version": "3.8.2",
+      "type": "library", 
+      "language": "python"
+    },
+    {
+      "name": "git",
+      "version": "2.39.2",
+      "type": "tool",
+      "language": "system"
+    }
+  ],
+  "organization": {
+    "name": "Example Corp",
+    "slug": "example-corp"
+  }
+}
+```
+
+## Profile Examples
+
+### Python Data Science Profile
+
+```json
+{
+  "id": "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
+  "name": "python-data-science",
+  "memory_mb": 4096,
+  "filesystem_size_mb": 10240,
+  "kernel": {
+    "version": "5.10.0",
+    "architecture": "x86_64"
+  },
+  "docker": {
+    "base_image": "python:3.11-slim",
+    "dockerfile_commands": [
+      "RUN apt-get update && apt-get install -y build-essential git",
+      "RUN pip install pandas numpy matplotlib scikit-learn jupyter seaborn plotly",
+      "RUN pip install requests beautifulsoup4 sqlalchemy psycopg2-binary",
+      "WORKDIR /workspace"
+    ]
+  },
+  "packages": [
+    {
+      "name": "python",
+      "version": "3.11.7", 
+      "type": "runtime",
+      "language": "python"
+    },
+    {
+      "name": "pandas",
+      "version": "2.1.4",
+      "type": "library",
+      "language": "python"
+    },
+    {
+      "name": "scikit-learn", 
+      "version": "1.3.2",
+      "type": "library",
+      "language": "python"
+    },
+    {
+      "name": "jupyter",
+      "version": "1.0.0",
+      "type": "tool",
+      "language": "python"
+    }
+  ]
+}
+```
+
+### Node.js Development Profile
+
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440001",
+  "name": "nodejs-web-dev",
+  "memory_mb": 2048,
+  "filesystem_size_mb": 6144,
+  "docker": {
+    "base_image": "node:18-slim",
+    "dockerfile_commands": [
+      "RUN apt-get update && apt-get install -y git curl",
+      "RUN npm install -g nodemon typescript tsx @types/node",
+      "WORKDIR /app"
+    ]
+  },
+  "packages": [
+    {
+      "name": "node",
+      "version": "18.19.0",
+      "type": "runtime", 
+      "language": "javascript"
+    },
+    {
+      "name": "npm",
+      "version": "10.2.3",
+      "type": "package_manager",
+      "language": "javascript"
+    },
+    {
+      "name": "typescript",
+      "version": "5.3.3",
+      "type": "compiler",
+      "language": "typescript"
+    }
+  ]
+}
+```
+
+### Go Development Profile
+
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440002", 
+  "name": "golang-api-dev",
+  "memory_mb": 1536,
+  "filesystem_size_mb": 4096,
+  "docker": {
+    "base_image": "golang:1.21-alpine",
+    "dockerfile_commands": [
+      "RUN apk add --no-cache git curl",
+      "WORKDIR /go/src/app"
+    ]
+  },
+  "packages": [
+    {
+      "name": "go",
+      "version": "1.21.5",
+      "type": "runtime",
+      "language": "go"
+    },
+    {
+      "name": "git",
+      "version": "2.40.1", 
+      "type": "tool",
+      "language": "system"
+    }
+  ]
+}
+```
+
+## Profile Configuration Fields
+
+### Memory & Storage
+- **memory_mb**: RAM allocation in megabytes (typically 1024-8192 MB)
+- **filesystem_size_mb**: Disk space allocation in megabytes
+
+### Kernel Configuration
+- **version**: Linux kernel version optimized for Firecracker
+- **architecture**: CPU architecture (typically x86_64)
+- **config**: Kernel configuration profile
+
+### Docker Configuration  
+- **base_image**: Docker base image used for the environment
+- **dockerfile_commands**: List of commands used to build the environment
+
+### Package Information
+- **name**: Package or tool name
+- **version**: Installed version
+- **type**: Package type (runtime, library, tool, compiler, package_manager)
+- **language**: Programming language or system category
+
+### Organization Context
+- **name**: Organization display name
+- **slug**: Organization URL slug for multi-tenant isolation
+
+## Use Cases by Profile Type
+
+### Data Science Profiles
+- Pre-installed with pandas, numpy, matplotlib, scikit-learn
+- Jupyter notebook support
+- Database connectivity packages
+- Visualization libraries
+
+### Web Development Profiles  
+- Node.js or Python web frameworks
+- Package managers (npm, pip)
+- Development tools (nodemon, typescript)
+- Database drivers
+
+### Systems Programming Profiles
+- Go, Rust, or C++ toolchains
+- System libraries and build tools
+- Performance profiling tools
+- Container and deployment utilities
+
+## Best Practices
+
+- **Profile Selection**: Choose profiles that match your specific development needs
+- **Resource Planning**: Check memory and storage limits for your workloads
+- **Package Dependencies**: Verify required packages are pre-installed or can be added
+- **Organization Isolation**: Profiles are organization-scoped for security and customization
+- **Version Compatibility**: Check package versions for compatibility with your code

@@ -1,6 +1,6 @@
 ---
-title: Introduction
-description: "Welcome to the home of your new documentation"
+title: 'Gentility AI Documentation'
+description: 'Instant development environments for AI agents'
 ---
 
 <img
@@ -14,58 +14,170 @@ description: "Welcome to the home of your new documentation"
   alt="Hero Dark"
 />
 
-## Setting up
+## Welcome to Gentility AI
 
-The first step to world-class documentation is setting up your editing environments.
-
-<CardGroup cols={2}>
-  <Card
-    title="Edit Your Docs"
-    icon="pen-to-square"
-    href="https://mintlify.com/docs/quickstart"
-  >
-    Get your docs set up locally for easy development
-  </Card>
-  <Card
-    title="Preview Changes"
-    icon="image"
-    href="https://mintlify.com/docs/development"
-  >
-    Preview your changes before you push to make sure they're perfect
-  </Card>
-</CardGroup>
-
-## Make it yours
-
-Update your docs to your brand and add valuable content for the best user conversion.
+Give your AI agents the power they need to thrive. Gentility AI provides instant, secure development environments through a simple HTTP API, designed specifically for the age of autonomous AI agents.
 
 <CardGroup cols={2}>
   <Card
-    title="Customize Style"
-    icon="palette"
-    href="https://mintlify.com/docs/settings/global"
+    title="Quick Start"
+    icon="rocket"
+    href="/quickstart"
   >
-    Customize your docs to your company's colors and brands
+    Get started with Gentility AI in under 5 minutes
   </Card>
   <Card
-    title="Reference APIs"
+    title="API Reference"
     icon="code"
-    href="https://mintlify.com/docs/api-playground/openapi"
+    href="/api-reference"
   >
-    Automatically generate endpoints from an OpenAPI spec
+    Complete API documentation and examples
   </Card>
   <Card
-    title="Add Components"
-    icon="screwdriver-wrench"
-    href="https://mintlify.com/docs/content/components/accordions"
+    title="Development Guide"
+    icon="wrench"
+    href="/development"
   >
-    Build interactive features and designs to guide your users
+    Learn how to integrate Gentility AI with your applications
   </Card>
   <Card
-    title="Get Inspiration"
-    icon="stars"
-    href="https://mintlify.com/customers"
+    title="Blog"
+    icon="newspaper"
+    href="https://gentility.ai/blog"
   >
-    Check out our showcase of our favorite documentation
+    Latest updates and insights from the team
   </Card>
 </CardGroup>
+
+## What is Gentility AI?
+
+Gentility AI is a cloud platform that provides instant, isolated virtual machines optimized for AI agent development workflows. Our API allows you to:
+
+- **Spin up VMs instantly** - Get secure development environments in milliseconds
+- **Execute code safely** - Run commands with real-time output and file change tracking  
+- **Access files seamlessly** - Read and write files within VM instances
+- **Integrate with AI agents** - Dynamic tool schemas for popular AI frameworks
+
+## Key Features
+
+### ⚡ Instant Provisioning
+No more waiting for environments to boot. Our warm pool system ensures VMs are ready when you need them.
+
+### 🔒 Battle-Tested Security
+Enterprise-grade isolation with Firecracker microVMs ensures complete separation between workloads.
+
+### 🛠️ AI-First Design
+Built from the ground up for AI agents, with dynamic tool schemas and seamless integration patterns.
+
+### 💰 Pay-As-You-Go
+No setup fees, no minimums. Only pay for the compute your agents actually use.
+
+### 🌐 Multi-Tenant Architecture
+Complete organization-level isolation with room-based VM separation for different sessions.
+
+### 📦 Pre-configured Environments
+Choose from profiles optimized for Python data science, Node.js web development, Go systems programming, and more.
+
+## Architecture Overview
+
+```mermaid
+graph TD
+    A[AI Agent] -->|HTTP API| B[Gentility API]
+    B --> C[Profile Manager]
+    B --> D[Instance Manager] 
+    B --> E[Command Executor]
+    B --> F[File Manager]
+    
+    C --> G[VM Templates]
+    D --> H[Firecracker VMs]
+    E --> H
+    F --> H
+    
+    H --> I[Isolated Network]
+    H --> J[Persistent Storage]
+```
+
+## Use Cases
+
+<CardGroup cols={1}>
+  <Card title="AI Agent Development" icon="robot">
+    Provide your AI agents with secure, isolated environments for code execution, data analysis, and file manipulation.
+  </Card>
+  
+  <Card title="Dynamic Code Execution" icon="terminal">
+    Execute user-generated code safely in isolated environments with comprehensive output tracking.
+  </Card>
+  
+  <Card title="Data Analysis Workflows" icon="chart-line">
+    Spin up Python environments with pandas, matplotlib, and scikit-learn for instant data processing.
+  </Card>
+  
+  <Card title="CI/CD and Testing" icon="vial">
+    Create reproducible testing environments for automated workflows and continuous integration.
+  </Card>
+</CardGroup>
+
+## Getting Started
+
+### 1. Sign Up and Get API Keys
+
+Visit [gentility.ai](https://gentility.ai) to create an account and generate your API keys.
+
+### 2. Choose a Profile
+
+Select from our pre-configured environments or create custom profiles:
+- **Python Data Science**: pandas, matplotlib, scikit-learn, Jupyter
+- **Node.js Web Dev**: Express, TypeScript, modern JS toolchain  
+- **Go Development**: Latest Go runtime with essential tools
+- **Custom**: Build your own with Docker and package specifications
+
+### 3. Create Your First Instance
+
+```bash
+curl -X POST "https://api.gentility.ai/api/profile/{profile_id}/room/my-session" \
+  -H "Authorization: Bearer rk_live_your_api_key" \
+  -H "Content-Type: application/json"
+```
+
+### 4. Execute Commands
+
+```bash
+curl -X POST "https://api.gentility.ai/api/profile/{profile_id}/room/my-session/command" \
+  -H "Authorization: Bearer rk_live_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{"command": "python -c \"print('"'"'Hello, Gentility!'"'"')\""}'
+```
+
+### 5. Access Files
+
+```bash
+curl "https://api.gentility.ai/api/profile/{profile_id}/room/my-session/file/output.txt" \
+  -H "Authorization: Bearer rk_live_your_api_key"
+```
+
+## Community and Support
+
+<CardGroup cols={2}>
+  <Card
+    title="Contact Support"
+    icon="envelope"
+    href="mailto:support@gentility.ai"
+  >
+    Get help from our team
+  </Card>
+  <Card
+    title="GitHub Issues"
+    icon="github"
+    href="https://github.com/gentility-ai/feedback"
+  >
+    Report bugs and request features
+  </Card>
+</CardGroup>
+
+## What's Next?
+
+Ready to give your AI agents superpowers? Check out our [Quick Start Guide](/quickstart) or dive into the [API Reference](/api-reference) to start building.
+
+---
+
+*Gentility AI - Empowering the next generation of autonomous AI agents.*

@@ -1,4 +1,156 @@
 ---
-title: 'Delete Plant'
-openapi: 'DELETE /plants/{id}'
+title: 'Execute Command'
+openapi: 'POST /api/profile/{profile_id}/room/{room_id}/command'
 ---
+
+Executes shell commands within VM instances and returns output with comprehensive file change tracking. This is the core endpoint for running code, scripts, and system commands in your development environments.
+
+## Request Body
+
+```json
+{
+  "command": "python -c 'print(\"Hello, World!\")'"
+}
+```
+
+The `command` field accepts any valid shell command that can be executed within the VM environment.
+
+## Use Cases
+
+- **Code Execution**: Run Python scripts, Node.js applications, shell scripts
+- **Package Installation**: Install dependencies with npm, pip, apt, etc.
+- **File Manipulation**: Create, edit, and organize files and directories
+- **Data Processing**: Execute data analysis, transformations, and exports
+- **Development Tasks**: Build projects, run tests, compile code
+
+## Response Structure
+
+The response includes detailed information about command execution and any files that were changed:
+
+### Successful Command Execution
+
+```json
+{
+  "instance_id": "550e8400-e29b-41d4-a716-446655440000",
+  "command": "python -c 'import matplotlib.pyplot as plt; plt.plot([1,2,3,4]); plt.savefig(\"/tmp/chart.png\")'",
+  "result": {
+    "output": "",
+    "exit_code": 0,
+    "files_changed": [
+      {
+        "path": "/tmp/chart.png",
+        "status": "created",
+        "size": 12485,
+        "mime_type": "image/png",
+        "public_url": "/vm/550e8400-e29b-41d4-a716-446655440000/file/tmp/chart.png"
+      }
+    ]
+  },
+  "status": "success"
+}
+```
+
+### Command with Output
+
+```json
+{
+  "instance_id": "550e8400-e29b-41d4-a716-446655440000", 
+  "command": "ls -la /home/user",
+  "result": {
+    "output": "total 28\ndrwxr-xr-x 5 user user 4096 Jan  7 10:30 .\ndrwxr-xr-x 3 root root 4096 Jan  7 10:25 ..\n-rw-r--r-- 1 user user  220 Jan  7 10:25 .bash_logout\n-rw-r--r-- 1 user user 3771 Jan  7 10:25 .bashrc\ndrwxr-xr-x 2 user user 4096 Jan  7 10:30 .cache\n-rw-r--r-- 1 user user  807 Jan  7 10:25 .profile",
+    "exit_code": 0,
+    "files_changed": []
+  },
+  "status": "success"
+}
+```
+
+### Command Failure
+
+```json
+{
+  "instance_id": "550e8400-e29b-41d4-a716-446655440000",
+  "command": "python nonexistent_script.py", 
+  "result": {
+    "output": "python: can't open file 'nonexistent_script.py': [Errno 2] No such file or directory",
+    "exit_code": 2,
+    "files_changed": []
+  },
+  "status": "error"
+}
+```
+
+## File Change Tracking
+
+The API automatically tracks file changes during command execution:
+
+### File Change Types
+- `created` - New files that were created
+- `modified` - Existing files that were changed  
+- `deleted` - Files that were removed
+
+### File Metadata
+- **path**: Full path to the changed file
+- **size**: File size in bytes
+- **mime_type**: Detected MIME type (e.g., `image/png`, `text/plain`)
+- **public_url**: Direct URL to access the file without authentication
+
+## Long-running Commands
+
+Commands have reasonable timeout limits, but for very long-running processes:
+
+- Use background processes with `nohup` or `screen`
+- Break large tasks into smaller steps
+- Consider using interim file outputs to track progress
+
+## Example Commands
+
+### Python Data Analysis
+```bash
+python -c "
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Create sample data  
+data = {'x': [1,2,3,4,5], 'y': [2,4,6,8,10]}
+df = pd.DataFrame(data)
+
+# Create visualization
+plt.figure(figsize=(8,6))
+plt.plot(df['x'], df['y'], 'o-')
+plt.title('Sample Data')
+plt.savefig('/tmp/analysis.png')
+print('Analysis complete!')
+"
+```
+
+### Node.js Package Installation
+```bash
+npm init -y && npm install express
+```
+
+### Git Operations  
+```bash
+git clone https://github.com/user/repo.git && cd repo && npm install
+```
+
+### File Processing
+```bash
+echo "Processing data..." && cat data.csv | tail -n +2 | cut -d',' -f1,3 > processed.csv
+```
+
+## Error Handling
+
+Always check the `exit_code` and `status` fields:
+
+- `exit_code: 0` and `status: "success"` - Command executed successfully
+- `exit_code: non-zero` and `status: "error"` - Command failed
+- Check the `output` field for error messages and debugging information
+
+## Best Practices
+
+- **Command Composition**: Chain multiple commands with `&&` for conditional execution
+- **Output Redirection**: Use `>` and `>>` to capture output to files
+- **Error Handling**: Check exit codes before proceeding with dependent operations
+- **Resource Management**: Be mindful of CPU and memory usage for intensive operations
+- **File Organization**: Use descriptive paths and organize outputs in logical directories

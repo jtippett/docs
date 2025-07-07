@@ -1,0 +1,199 @@
+---
+title: 'Get AI Tool Schema'
+openapi: 'GET /api/profile/{profile_id}/room/{room_id}/tools'
+---
+
+Returns AI tool schema definitions for the VM environment, including available tools and environment capabilities. This endpoint is designed to provide AI agents with the exact tool schemas they need to interact with the development environment.
+
+## Use Cases
+
+- **AI Agent Integration**: Provide tool schemas directly to AI agents for code execution
+- **Dynamic Capability Discovery**: Determine what tools and packages are available in a specific environment
+- **Environment Introspection**: Understand the capabilities and configuration of a VM instance
+- **Tool Configuration**: Get structured information about available development tools
+
+## Response Structure
+
+The response includes comprehensive information about the instance and available tools:
+
+```json
+{
+  "profile_id": "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
+  "room_id": "ai-session-123",
+  "instance_id": "550e8400-e29b-41d4-a716-446655440000",
+  "instance_status": "ready",
+  "tools": [
+    {
+      "name": "execute",
+      "description": "Execute a command in the VM shell environment. Returns output, exit code, and tracks file changes.",
+      "parameters": {
+        "type": "object",
+        "required": ["command"],
+        "properties": {
+          "command": {
+            "type": "string",
+            "description": "Shell command to execute in the VM environment"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "read_file", 
+      "description": "Read the contents of a file from the VM filesystem",
+      "parameters": {
+        "type": "object",
+        "required": ["file_path"],
+        "properties": {
+          "file_path": {
+            "type": "string",
+            "description": "Path to the file to read (absolute or relative to home directory)"
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  ]
+}
+```
+
+## Tool Schema Examples
+
+### Python Data Science Environment
+
+For a profile configured with Python, pandas, matplotlib, and Jupyter:
+
+```json
+{
+  "tools": [
+    {
+      "name": "execute",
+      "description": "Execute Python code, shell commands, or data analysis scripts. Environment includes pandas, matplotlib, scikit-learn, and Jupyter.",
+      "parameters": {
+        "type": "object", 
+        "required": ["command"],
+        "properties": {
+          "command": {
+            "type": "string",
+            "description": "Command to execute (python scripts, pip install, data processing, etc.)",
+            "examples": [
+              "python -c 'import pandas as pd; df = pd.read_csv(\"data.csv\"); print(df.head())'",
+              "pip install requests numpy",
+              "jupyter notebook --generate-config"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}
+```
+
+### Node.js Development Environment
+
+For a Node.js profile with npm, Express, and development tools:
+
+```json
+{
+  "tools": [
+    {
+      "name": "execute",
+      "description": "Execute Node.js code, npm commands, or JavaScript applications. Environment includes Node.js 18+, npm, Express, and common development packages.",
+      "parameters": {
+        "type": "object",
+        "required": ["command"], 
+        "properties": {
+          "command": {
+            "type": "string",
+            "description": "Command to execute (node scripts, npm operations, package builds, etc.)",
+            "examples": [
+              "node -e 'console.log(process.version)'",
+              "npm init -y && npm install express",
+              "npm run build && npm test"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}
+```
+
+## Dynamic Schema Generation
+
+The tool schemas are dynamically generated based on:
+
+- **Profile Configuration**: Base packages and language runtime
+- **Installed Packages**: Detected packages and their versions  
+- **Environment Capabilities**: Available tools and utilities
+- **Usage Examples**: Context-aware examples based on the environment
+
+## Integration Patterns
+
+### OpenAI Function Calling
+
+The schemas are compatible with OpenAI's function calling format:
+
+```python
+import openai
+
+# Get tool schema from Gentility API
+response = requests.get(f"https://api.gentility.ai/api/profile/{profile_id}/room/{room_id}/tools")
+tools = response.json()["tools"]
+
+# Use with OpenAI
+client = openai.OpenAI()
+completion = client.chat.completions.create(
+    model="gpt-4",
+    messages=[{"role": "user", "content": "Analyze this data file"}],
+    tools=[{"type": "function", "function": tool} for tool in tools]
+)
+```
+
+### Anthropic Claude
+
+The schemas work with Claude's tool use:
+
+```python
+import anthropic
+
+# Get tools and format for Claude
+response = requests.get(f"https://api.gentility.ai/api/profile/{profile_id}/room/{room_id}/tools") 
+tools = response.json()["tools"]
+
+client = anthropic.Anthropic()
+message = client.messages.create(
+    model="claude-3-sonnet-20240229",
+    max_tokens=1000,
+    tools=tools,
+    messages=[{"role": "user", "content": "Help me process this dataset"}]
+)
+```
+
+## Error Responses
+
+### Instance Not Ready
+
+```json
+{
+  "error": "instance_not_ready",
+  "message": "Instance is still provisioning, current status: vm_started"
+}
+```
+
+### Instance Not Found
+
+```json
+{
+  "error": "instance_not_found",
+  "message": "No instance found for profile 6ba7b810-9dad-11d1-80b4-00c04fd430c8 and room ai-session-123"
+}
+```
+
+## Best Practices
+
+- **Schema Caching**: Tool schemas are relatively stable - cache them to reduce API calls
+- **Environment Verification**: Check the `instance_status` to ensure the instance is ready
+- **Tool Selection**: Use appropriate tools based on the available environment capabilities
+- **Error Handling**: Always verify the instance exists and is ready before using tool schemas
+- **Profile Matching**: Different profiles will have different tool capabilities - choose the right profile for your use case
