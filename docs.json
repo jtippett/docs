@@ -1,35 +1,34 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
-  "name": "Mint Starter Kit",
+  "theme": "quill",
+  "name": "Gentility AI Documentation",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#6366F1",
+    "light": "#8B5CF6",
+    "dark": "#4338CA",
+    "ultraLight": "#EEF2FF",
+    "ultraDark": "#312E81"
   },
   "favicon": "/favicon.svg",
   "navigation": {
     "tabs": [
       {
-        "tab": "Guides",
+        "tab": "Documentation",
         "groups": [
           {
-            "group": "Get Started",
+            "group": "Getting Started",
             "pages": [
               "index",
-              "quickstart",
-              "development"
+              "quickstart"
             ]
           },
           {
-            "group": "Essentials",
+            "group": "Integration Guides",
             "pages": [
-              "essentials/markdown",
+              "development",
               "essentials/code",
               "essentials/images",
-              "essentials/settings",
-              "essentials/navigation",
-              "essentials/reusable-snippets"
+              "essentials/settings"
             ]
           }
         ]
@@ -38,17 +37,28 @@
         "tab": "API Reference",
         "groups": [
           {
-            "group": "API Documentation",
+            "group": "Overview",
             "pages": [
               "api-reference/introduction"
             ]
           },
           {
-            "group": "Endpoint Examples",
+            "group": "VM Management",
             "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
+              "api-reference/endpoint/create"
+            ]
+          },
+          {
+            "group": "Command & File Operations",
+            "pages": [
               "api-reference/endpoint/delete",
+              "api-reference/endpoint/get"
+            ]
+          },
+          {
+            "group": "AI Tools & Configuration",
+            "pages": [
+              "api-reference/endpoint/tools",
               "api-reference/endpoint/webhook"
             ]
           }
@@ -58,18 +68,23 @@
     "global": {
       "anchors": [
         {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
+          "anchor": "Website",
+          "href": "https://gentility.ai",
+          "icon": "globe"
         },
         {
-          "anchor": "Community",
-          "href": "https://mintlify.com/community",
-          "icon": "slack"
+          "anchor": "Support",
+          "href": "mailto:support@gentility.ai",
+          "icon": "envelope"
+        },
+        {
+          "anchor": "GitHub",
+          "href": "https://github.com/gentility-ai/feedback",
+          "icon": "github"
         },
         {
           "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
+          "href": "https://gentility.ai/blog",
           "icon": "newspaper"
         }
       ]
@@ -82,21 +97,50 @@
   "navbar": {
     "links": [
       {
+        "label": "Login",
+        "href": "https://app.gentility.ai/login"
+      },
+      {
         "label": "Support",
-        "href": "mailto:hi@mintlify.com"
+        "href": "mailto:support@gentility.ai"
       }
     ],
     "primary": {
       "type": "button",
-      "label": "Dashboard",
-      "href": "https://dashboard.mintlify.com"
+      "label": "Get Started",
+      "href": "https://app.gentility.ai/signup"
     }
   },
   "footer": {
     "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
+      "x": "https://x.com/gentility_ai",
+      "github": "https://github.com/gentility-ai",
+      "linkedin": "https://linkedin.com/company/gentility-ai"
     }
+  },
+  "analytics": {
+    "posthog": {
+      "apiKey": "your-posthog-key"
+    }
+  },
+  "metadata": {
+    "title": "Gentility AI Documentation",
+    "description": "Instant development environments for AI agents. Spin up secure VMs, execute commands, and integrate with AI frameworks through a simple HTTP API.",
+    "og:title": "Gentility AI - Documentation",
+    "og:description": "API documentation for instant development environments designed for AI agents",
+    "og:image": "https://gentility.ai/images/og-docs.png",
+    "twitter:card": "summary_large_image"
+  },
+  "api": {
+    "baseUrl": "https://api.gentility.ai",
+    "auth": {
+      "method": "bearer",
+      "name": "Authorization"
+    }
+  },
+  "openapi": "/api-reference/openapi.json",
+  "modeToggle": {
+    "default": "dark",
+    "isHidden": false
   }
 }
