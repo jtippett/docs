@@ -89,7 +89,7 @@
     "links": [
       {
         "label": "Login",
-        "href": "https://app.gentility.ai/login"
+        "href": "https://core.gentility.ai/log-in"
       },
       {
         "label": "Support",
@@ -99,7 +99,7 @@
     "primary": {
       "type": "button",
       "label": "Get Started",
-      "href": "https://app.gentility.ai/signup"
+      "href": "https://core.gentility.ai/users/register"
     }
   },
   "footer": {
