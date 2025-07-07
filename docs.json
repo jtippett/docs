@@ -1,13 +1,11 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "quill",
+  "theme": "mint",
   "name": "Gentility AI Documentation",
   "colors": {
     "primary": "#6366F1",
     "light": "#8B5CF6",
-    "dark": "#4338CA",
-    "ultraLight": "#EEF2FF",
-    "ultraDark": "#312E81"
+    "dark": "#4338CA"
   },
   "favicon": "/favicon.svg",
   "navigation": {
@@ -17,10 +15,7 @@
         "groups": [
           {
             "group": "Getting Started",
-            "pages": [
-              "index",
-              "quickstart"
-            ]
+            "pages": ["index", "quickstart"]
           },
           {
             "group": "Integration Guides",
@@ -38,15 +33,11 @@
         "groups": [
           {
             "group": "Overview",
-            "pages": [
-              "api-reference/introduction"
-            ]
+            "pages": ["api-reference/introduction"]
           },
           {
             "group": "VM Management",
-            "pages": [
-              "api-reference/endpoint/create"
-            ]
+            "pages": ["api-reference/endpoint/create"]
           },
           {
             "group": "Command & File Operations",
@@ -117,30 +108,5 @@
       "github": "https://github.com/gentility-ai",
       "linkedin": "https://linkedin.com/company/gentility-ai"
     }
-  },
-  "analytics": {
-    "posthog": {
-      "apiKey": "your-posthog-key"
-    }
-  },
-  "metadata": {
-    "title": "Gentility AI Documentation",
-    "description": "Instant development environments for AI agents. Spin up secure VMs, execute commands, and integrate with AI frameworks through a simple HTTP API.",
-    "og:title": "Gentility AI - Documentation",
-    "og:description": "API documentation for instant development environments designed for AI agents",
-    "og:image": "https://gentility.ai/images/og-docs.png",
-    "twitter:card": "summary_large_image"
-  },
-  "api": {
-    "baseUrl": "https://api.gentility.ai",
-    "auth": {
-      "method": "bearer",
-      "name": "Authorization"
-    }
-  },
-  "openapi": "/api-reference/openapi.json",
-  "modeToggle": {
-    "default": "dark",
-    "isHidden": false
   }
 }
