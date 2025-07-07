@@ -1,11 +1,11 @@
 ---
-title: 'Introduction'
-description: 'Gentility AI API for instant development environments and AI agent tools'
+title: "Introduction"
+description: "Gentility AI API for instant development environments and AI agent tools"
 ---
 
 ## Welcome to the Gentility AI API
 
-Gentility AI provides instant, secure development environments for AI agents through a simple HTTP API. Our platform allows you to spin up isolated virtual machines, execute commands, access files, and provide your AI agents with powerful development tools.
+Gentility AI provides instant, secure work environments for AI agents through a simple HTTP API. Our platform allows you to spin up isolated virtual machines, execute commands, access files, and provide your AI agents with the powerful tools they need to complete their tasks.
 
 <Card
   title="Gentility AI API Specification"
@@ -18,7 +18,7 @@ Gentility AI provides instant, secure development environments for AI agents thr
 ## Key Features
 
 - **Instant VM Provisioning**: Spin up secure development environments in milliseconds
-- **Multi-tenant Isolation**: Organization-scoped access with room-based VM separation  
+- **Multi-tenant Isolation**: Organization-scoped access with room-based VM separation
 - **Command Execution**: Execute shell commands with real-time output and file change tracking
 - **File Operations**: Read and write files within VM instances
 - **AI Tool Integration**: Dynamic tool schema generation for AI agents
@@ -41,41 +41,50 @@ API keys follow the pattern: `rk_{environment}_{32_hex_characters}`
 - **Development**: `rk_test_...`
 
 <Warning>
-Keep your API keys secure and never expose them in client-side code or public repositories.
+  Keep your API keys secure and never expose them in client-side code or public
+  repositories.
 </Warning>
 
 ## Core Concepts
 
 ### Profiles
+
 VM configuration templates that define:
+
 - Memory allocation and filesystem size
 - Base Docker image and kernel configuration
 - Installed packages and development tools
 - Organization-specific settings
 
 ### Rooms
+
 Logical isolation boundaries within profiles that allow multiple concurrent VM instances for different sessions or users.
 
 ### Instances
+
 Active virtual machines provisioned from profiles, progressing through states:
 `active` → `network_allocated` → `ftap_created` → `image_generated` → `vm_started` → `vm_booted` → `ready`
 
 ### Multi-tenant Architecture
+
 All operations are scoped to your organization, ensuring complete isolation between different customers and teams.
 
 ## Quick Start
 
 1. **Create a VM Instance**
+
    ```bash
    POST /api/profile/{profile_id}/room/{room_id}
    ```
 
 2. **Execute Commands**
+
    ```bash
    POST /api/profile/{profile_id}/room/{room_id}/command
    ```
 
 3. **Read Files**
+
    ```bash
    GET /api/profile/{profile_id}/room/{room_id}/file/{path}
    ```
@@ -88,6 +97,7 @@ All operations are scoped to your organization, ensuring complete isolation betw
 ## Support
 
 For questions, issues, or feature requests:
+
 - **Email**: support@gentility.ai
 - **Website**: https://gentility.ai
 - **Documentation**: https://docs.gentility.ai
